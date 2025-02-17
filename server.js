@@ -1,29 +1,16 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const fs = require("fs");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(bodyParser.json());
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err));
 
-app.post("/login", (req, res) => {
-    const { username, password } = req.body;
-    
-    const logData = `Username: ${username}, Password: ${password}\n`;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-    // Save login info to a text file
-    fs.appendFile("logins.txt", logData, (err) => {
-        if (err) {
-            console.error("Error saving login:", err);
-            return res.status(500).json({ message: "Failed to save login data" });
-        }
-        res.json({ message: "Login data saved successfully!" });
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
